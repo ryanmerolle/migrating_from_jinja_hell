@@ -23,12 +23,12 @@ from netutils.interface import split_interface
 
 
 class DesignationVLANMapping(Enum):
-    """Enum for mapping the designation to a untagged VLAN for primary interfaces Et1-48."""
+    """Enum for mapping the designation to a untagged VLAN for interfaces Et1-48."""
 
     # Ethernet1-24 VLANs
     """The DEFAULT native VLAN."""
     DEFAULT_NATIVE = 999
-    """The ESX VLAN also the default native VLAN for primary server interfaces."""
+    """The ESX VLAN also the default native VLAN for low interfaces."""
     BM_ESX = 100
     """The production VLAN."""
     BM_PROD = 200
@@ -99,8 +99,8 @@ class LACPInterface(BaseInterface):
 
 
 @dataclass
-class PrimaryLACPBaseInterface(LACPInterface):
-    """Sets the common config for the primary interface (Et1-24) for LACP"""
+class LowLACPBaseInterface(LACPInterface):
+    """Sets the common config for the low interface (Et1-24) for LACP"""
 
     """The interface spanning tree portfast status"""
     spanning_tree_portfast: Optional[str] = field(default="edge")
@@ -118,12 +118,6 @@ class TrunkInterface(BaseInterface):
     native_vlan: int = field(default=DesignationVLANMapping["BM_ESX"].value)
     """The trunk groups allowed on the interface"""
     trunk_groups: List = field(default_factory=lambda: ["SERVER"])
-
-
-@dataclass
-class NOLACPTrunkInterface(TrunkInterface):
-    """The LACP interface config with NO LACP, contains common attributes for these ports."""
-
     """The interface spanning tree portfast status"""
     spanning_tree_portfast: Optional[str] = field(default="edge")
     """The interface type (switched or routed)"""
@@ -131,8 +125,8 @@ class NOLACPTrunkInterface(TrunkInterface):
 
 
 @dataclass
-class PrimaryTrunkLACPFallbackInterface(PrimaryLACPBaseInterface):
-    """The LACP interface for primary interfaces.
+class LowTrunkLACPFallbackInterface(LowLACPBaseInterface):
+    """The LACP interface for low interfaces.
 
     Eth1-24, config with LACP fallback, contains common attributes for these ports.
     """
@@ -147,7 +141,7 @@ class PrimaryTrunkLACPFallbackInterface(PrimaryLACPBaseInterface):
 
 @dataclass
 class AccessInterface(BaseInterface):
-    """The base access primary interface."""
+    """The base access low interface."""
 
     """The access vlan"""
     vlans: int = -1
@@ -158,20 +152,6 @@ class AccessInterface(BaseInterface):
     """The interface type (switched or routed)"""
     type: str = field(default="switched")
 
-
-@dataclass
-class SecondaryAccessInterface(BaseInterface):
-    """The access secondary interface."""
-
-    """The interface shutdown status"""
-    shutdown: bool = True
-
-
-# Need to refactor for readability
-# Example approach
-# is_switchport = data['value']['nested']['deep']['type']['port'] == "switchport"
-# if is_switchport:
-#     print("Port is switchport")
 
 @dataclass
 class PortBuilder:
@@ -204,7 +184,7 @@ class HighPortBuilder(PortBuilder):
 
     def _bm_esx_voice(self):
         """Build the high port for the ESX voice interface."""
-        interface = NOLACPTrunkInterface(
+        interface = TrunkInterface(
             description=self.description,
             name=self.interface["name"],
             native_vlan=DesignationVLANMapping["DEFAULT_NATIVE"].value,
@@ -224,7 +204,8 @@ class HighPortBuilder(PortBuilder):
 
     def _default(self):
         """Build the high port for the default interface."""
-        interface = NOLACPTrunkInterface(
+        interface = LACPInterface(
+            channel_group_id=self.interface_number,
             description=self.description,
             name=self.interface["name"],
         )
@@ -259,7 +240,7 @@ def _eth_builder(data):
         if 1 <= interface_number <= 24:
             if non_default_switchport["designation"].startswith("BM_"):
                 if non_default_switchport["designation"] == "BM_ESX_VOICE":
-                    obj_interface = NOLACPTrunkInterface(
+                    obj_interface = TrunkInterface(
                         description=non_default_switchport["connected_host"],
                         name=interface["name"],
                         native_vlan=DesignationVLANMapping["BM_ESX"].value,
@@ -270,7 +251,7 @@ def _eth_builder(data):
                         trunk_groups = ["DMZ_SERVER"]
                     else:
                         trunk_groups = ["SERVER"]
-                    obj_interface = PrimaryTrunkLACPFallbackInterface(
+                    obj_interface = LowTrunkLACPFallbackInterface(
                         channel_group_id=interface_number,
                         description=non_default_switchport["connected_host"],
                         name=interface["name"],
@@ -288,7 +269,7 @@ def _eth_builder(data):
                 )
 
             else:
-                obj_interface = PrimaryTrunkLACPFallbackInterface(
+                obj_interface = LowTrunkLACPFallbackInterface(
                     channel_group_id=interface_number,
                     description=non_default_switchport["connected_host"],
                     name=interface["name"],
