@@ -85,16 +85,12 @@ class ChannelGroup:
 class LACPInterface(BaseInterface):
     """The LACP interface config, contains common attributes for LACP."""
 
-    """Set channel group details."""
-    channel_group: ChannelGroup = ChannelGroup(id=channel_group_id)
+    """The chanel group id determines the Port-Channel membership."""
+    channel_group_id: int = -1
+    """Set the channel group mode."""
+    channel_group_mode: str = "active"
 
-    #def __post_init__(self):
-    #    channel_group_id = -1
-    #    self.channel_group = ChannelGroup(id=channel_group_id)
 
-    #@property
-    #def number(self):
-    #    return self.name.replace("Ethernet", "")
 
 
 @dataclass
@@ -228,7 +224,7 @@ def _eth_builder(data):
                         trunk_groups = ["ISCSI"],
                     )
                 elif non_default_switchport["designation"] == "BM_MD_NON_BOND":
-                    vlan_designation = "BM_MD_NON_BOND_" + switch_letter
+                    vlan_designation = f"BM_MD_NON_BOND_{switch_letter}"
                     obj_interface = AccessInterface(
                       description=non_default_switchport["connected_host"],
                       name=interface["name"],

@@ -1,0 +1,468 @@
+---
+ethernet_interfaces:
+  Ethernet1:
+    # Default configuration
+    description: server-1
+    type: switched
+    channel_group:
+      id: 1
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet2:
+    description: server-2
+    type: switched
+    channel_group:
+      id: 2
+      mode: active
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+    native_vlan: 200
+    trunk_groups:
+      - SERVER
+  Ethernet3:
+    description: server-3
+    type: switched
+    channel_group:
+      id: 3
+      mode: active
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+    native_vlan: 300
+    trunk_groups:
+      - SERVER
+  Ethernet4:
+    description: server-4
+    type: switched
+    channel_group:
+      id: 4
+      mode: active
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+    native_vlan: 600
+    trunk_groups:
+      - DMZ_SERVER
+  Ethernet5:
+    description: server-5
+    type: switched
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet6:
+    description: workstation-1
+    type: switched
+    mode: access
+    shutdown: false
+    spanning_tree_portfast: edge
+    vlans: 250
+  Ethernet7:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 7
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet8:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 8
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet9:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 9
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet10:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 10
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet11:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 11
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet12:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 12
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet13:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 13
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet14:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 14
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet15:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 15
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet16:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 16
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet17:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 17
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet18:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 18
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet19:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 19
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet20:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 20
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet21:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 21
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet22:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 22
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet23:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 23
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet24:
+    # Default configuration
+    description: ''
+    type: switched
+    channel_group:
+      id: 24
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+  Ethernet25:
+    # Default configuration
+    description: server-1
+    channel_group:
+      id: 25
+      mode: active
+    shutdown: false
+  Ethernet26:
+    # Default configuration
+    description: server-2
+    channel_group:
+      id: 26
+      mode: active
+    shutdown: false
+  Ethernet27:
+    # Default configuration
+    description: server-3
+    channel_group:
+      id: 27
+      mode: active
+    shutdown: false
+  Ethernet28:
+    # Default configuration
+    description: server-4
+    channel_group:
+      id: 28
+      mode: active
+    shutdown: false
+  Ethernet29:
+    description: server-5
+    type: switched
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+    native_vlan: 999
+    trunk_groups:
+      - ISCSI
+  Ethernet30:
+    description: workstation-1
+    shutdown: true
+  Ethernet31:
+    # Default configuration
+    description: server-6
+    channel_group:
+      id: 31
+      mode: active
+    shutdown: false
+  Ethernet32:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 32
+      mode: active
+    shutdown: false
+  Ethernet33:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 33
+      mode: active
+    shutdown: false
+  Ethernet34:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 34
+      mode: active
+    shutdown: false
+  Ethernet35:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 35
+      mode: active
+    shutdown: false
+  Ethernet36:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 36
+      mode: active
+    shutdown: false
+  Ethernet37:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 37
+      mode: active
+    shutdown: false
+  Ethernet38:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 38
+      mode: active
+    shutdown: false
+  Ethernet39:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 39
+      mode: active
+    shutdown: false
+  Ethernet40:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 40
+      mode: active
+    shutdown: false
+  Ethernet41:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 41
+      mode: active
+    shutdown: false
+  Ethernet42:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 42
+      mode: active
+    shutdown: false
+  Ethernet43:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 43
+      mode: active
+    shutdown: false
+  Ethernet44:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 44
+      mode: active
+    shutdown: false
+  Ethernet45:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 45
+      mode: active
+    shutdown: false
+  Ethernet46:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 46
+      mode: active
+    shutdown: false
+  Ethernet47:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 47
+      mode: active
+    shutdown: false
+  Ethernet48:
+    # Default configuration
+    description: ''
+    channel_group:
+      id: 48
+      mode: active
+    shutdown: false
+
