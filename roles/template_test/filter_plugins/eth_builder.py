@@ -63,6 +63,14 @@ class BaseInterface:
     def to_keyed_dict(self):
         """Convert the interface to a dict keyed with interface name."""
         details = asdict(self)
+
+        """Delete channel_group_id from dictionary."""
+        try:
+            del details['channel_group_id']
+        except KeyError:
+            pass
+
+        """output the name field as the dictionary name"""
         return {details.pop("name"): details}
 
 
