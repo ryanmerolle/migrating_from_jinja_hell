@@ -3,49 +3,49 @@ non_default_switchports:
   - rack: "101"
     switchports:
       Ethernet1:
-        designation:
-        connected_host:
+        designation: BM_ESX
+        connected_host: server-1
       Ethernet2:
-        designation:
-        connected_host:
+        designation: BM_PROD
+        connected_host: server-2
       Ethernet3:
-        designation:
-        connected_host:
+        designation: BM_NON_PROD
+        connected_host: server-3
       Ethernet4:
-        designation:
-        connected_host:
+        designation: BM_ESX_DMZ
+        connected_host: server-4
       Ethernet5:
         designation:
-        connected_host:
+        connected_host: server-5
       Ethernet6:
         designation:
-        connected_host:
+        connected_host: workstation-1
       Ethernet25:
-        designation:
-        connected_host:
+        designation: BM_ESX
+        connected_host: server-1
       Ethernet26:
-        designation:
-        connected_host:
+        designation: BM_PROD
+        connected_host: server-2
       Ethernet27:
-        designation:
-        connected_host:
+        designation: BM_NON_PROD
+        connected_host: server-3
       Ethernet28:
         designation:
-        connected_host:
+        connected_host: server-4
       Ethernet29:
         designation:
-        connected_host:
+        connected_host: server-5
       Ethernet30:
         designation:
-        connected_host:
+        connected_host: workstation-1
       Ethernet31:
         designation:
-        connected_host:
+        connected_host: server-6
   - rack: "102"
     switchports:
       Ethernet12:
         designation:
-        connected_host:
+        connected_host: server-11
       Ethernet20:
         designation:
-        connected_host:
+        connected_host: server-12

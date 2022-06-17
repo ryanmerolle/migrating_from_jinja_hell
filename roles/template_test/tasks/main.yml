@@ -17,11 +17,11 @@
     dest: "./artifacts/{{ inventory_hostname }}/interfaces_jinja.yml"
     mode: 0750
   delegate_to: localhost
-  changed_when: False
+  changed_when: false
 
 - name: Load Template Ethernet Interfaces
   include_vars:
-    file:  "./artifacts/{{ inventory_hostname }}/interfaces_jinja.yml"
+    file: "./artifacts/{{ inventory_hostname }}/interfaces_jinja.yml"
 
 - name: Diff Output
   ansible.utils.fact_diff:

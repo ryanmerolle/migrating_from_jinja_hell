@@ -117,4 +117,3 @@ ethernet_interfaces:
     type: 100GBASE_QSFP28
   - name: Ethernet56/1
     type: 100GBASE_QSFP28
-

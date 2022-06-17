@@ -39,9 +39,9 @@ port_channel_interfaces:
 {%             elif interface['name'] in rack_non_default_switchports.keys() %}
 {%                 if switchport['designation'] in ['BM_PROD', 'BM_NON-PROD', 'BM_ESX_DMZ'] %}
   Port-Channel{{ interface_number }}:
-{%                 if switchport is defined and switchport['connected_host'] != 'None' %}
+{%                     if switchport is defined and switchport['connected_host'] != 'None' %}
     description: {{ switchport['connected_host'] }}
-{%                 endif %}
+{%                     endif %}
     type: switched
     lacp_fallback_mode: individual
     mlag: {{ interface_number }}
