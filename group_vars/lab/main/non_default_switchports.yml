@@ -39,7 +39,7 @@ non_default_switchports:
         designation: WORKSTATION
         connected_host: workstation-1
       Ethernet31:
-        designation:
+        designation: BM_MD_NON_BOND
         connected_host: server-6
   - rack: "102"
     switchports:

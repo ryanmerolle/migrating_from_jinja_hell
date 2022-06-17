@@ -340,12 +340,12 @@ ethernet_interfaces:
     description: workstation-1
     shutdown: true
   Ethernet31:
-    # Default configuration
     description: server-6
-    channel_group:
-      id: 31
-      mode: active
+    mode: access
     shutdown: false
+    spanning_tree_portfast: edge
+    type: switched
+    vlans: 700
   Ethernet32:
     # Default configuration
     description: ''
