@@ -249,7 +249,7 @@ class HighPortBuilder(PortBuilder):
         return interface
 
     def _workstation(self):
-        """Build the high port for the workstation interface."""
+        """Build the high port for the workstation interface.  Sets a description & shuts it down."""
         interface = BaseInterface(
             description=self.description,
             name=self.interface["name"],
@@ -273,7 +273,7 @@ def _eth_builder(data):
         else:
             non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
 
-        if 1 <= interface_number <= 24:
+        if 1 <= interface_number <= 24: # "low ports" refer to Et1-24 which are the primary interfaces to the connected compute resources.
             if "DMZ" in non_default_switchport["designation"]:
                 trunk_groups = ["DMZ_SERVER"]
             else:
@@ -289,7 +289,7 @@ def _eth_builder(data):
             )
             obj_interface = builder.build()
 
-        elif 25 <= interface_number <= 48:
+        elif 25 <= interface_number <= 48: # "high ports" refer to Et25-48 which are the dedicated iSCSI or multicast interfaces to the connected compute resources.
             builder = HighPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],
