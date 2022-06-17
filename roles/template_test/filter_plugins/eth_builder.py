@@ -17,7 +17,7 @@ __metaclass__ = type
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from netutils.interface import split_interface
 
@@ -166,53 +166,97 @@ class SecondaryAccessInterface(BaseInterface):
 #     print("Port is switchport")
 
 
+@dataclass
+class HighPortBuilder:
+    """Build the high port."""
+
+    """The interface description"""
+    description: str
+    """The interface designation"""
+    designation: str
+    """The complet interface"""
+    interface: Dict
+    """The interface number"""
+    interface_number: int
+    "The switch letter"
+    switch_letter: str
+
+    def build(self):
+        """Build the high port.
+
+        Use the deisngation to lookup a function withing this class or default.
+        """
+        builder = getattr(self, f"_{self.designation.lower()}", self._default)
+        return builder()
+
+    def _bm_esx_voice(self):
+        """Build the high port for the ESX voice interface."""
+        interface = NOLACPTrunkInterface(
+            description=self.description,
+            name=self.interface["name"],
+            native_vlan=DesignationVLANMapping["DEFAULT_NATIVE"].value,
+            trunk_groups=["ISCSI"],
+        )
+        return interface
+
+    def _bm_md_non_bond(self):
+        """Build the high port for the market data interface."""
+        vlan_designation = f"BM_MD_NON_BOND_{self.switch_letter}"
+        interface = AccessInterface(
+            description=self.description,
+            name=self.interface["name"],
+            vlans=DesignationVLANMapping[vlan_designation].value,
+        )
+        return interface
+
+    def _default(self):
+        """Build the high port for the default interface."""
+        interface = NOLACPTrunkInterface(
+            description=self.description,
+            name=self.interface["name"],
+        )
+        return interface
+
+    def _workstation(self):
+        """Build the high port for the workstation interface."""
+        interface = BaseInterface(
+            description=self.description,
+            name=self.interface["name"],
+            shutdown=True,
+        )
+        return interface
+
+
 def _eth_builder(data):
     """The ethernet interface configuration builder function."""
     result = {}
     non_default_switchport_list = data["rack_non_default_switchports"].keys()
     switch_letter = data["inventory_hostname"][-1].upper()
     for interface in data["interfaces"]:
+        if interface["type"] != "25GBASE_SFP28":
+            continue  # move on quick, reduces the indent of the rest of the function
 
-        if interface["type"] == "25GBASE_SFP28":
-            interface_number = int(split_interface(interface["name"])[1])
+        interface_number = int(split_interface(interface["name"])[1])
 
-            if interface["name"] in non_default_switchport_list:
-                non_default_switchport = data["rack_non_default_switchports"][interface["name"]]
-            else:
-                non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
+        if interface["name"] in non_default_switchport_list:
+            non_default_switchport = data["rack_non_default_switchports"][interface["name"]]
+        else:
+            non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
 
-            if 1 <= interface_number <= 24:
-                if non_default_switchport["designation"].startswith("BM_"):
-                    if non_default_switchport["designation"] == "BM_ESX_VOICE":
-                        obj_interface = NOLACPTrunkInterface(
-                            description=non_default_switchport["connected_host"],
-                            name=interface["name"],
-                            native_vlan=DesignationVLANMapping["BM_ESX"].value,
-                            trunk_groups=["SERVER"],
-                        )
-                    else:
-                        if "DMZ" in non_default_switchport["designation"]:
-                            trunk_groups = ["DMZ_SERVER"]
-                        else:
-                            trunk_groups = ["SERVER"]
-                        obj_interface = PrimaryTrunkLACPFallbackInterface(
-                            channel_group_id=interface_number,
-                            description=non_default_switchport["connected_host"],
-                            name=interface["name"],
-                            native_vlan=DesignationVLANMapping[
-                                non_default_switchport["designation"]
-                            ].value,
-                            trunk_groups=trunk_groups,
-                        )
-
-                elif non_default_switchport["designation"] == "WORKSTATION":
-                    obj_interface = AccessInterface(
+        if 1 <= interface_number <= 24:
+            if non_default_switchport["designation"].startswith("BM_"):
+                if non_default_switchport["designation"] == "BM_ESX_VOICE":
+                    obj_interface = NOLACPTrunkInterface(
                         description=non_default_switchport["connected_host"],
                         name=interface["name"],
-                        vlans=DesignationVLANMapping[non_default_switchport["designation"]].value,
+                        native_vlan=DesignationVLANMapping["BM_ESX"].value,
+                        trunk_groups=["SERVER"],
                     )
-
                 else:
+                    if "DMZ" in non_default_switchport["designation"]:
+                        trunk_groups = ["DMZ_SERVER"]
+                    else:
+                        trunk_groups = ["SERVER"]
                     obj_interface = PrimaryTrunkLACPFallbackInterface(
                         channel_group_id=interface_number,
                         description=non_default_switchport["connected_host"],
@@ -220,38 +264,36 @@ def _eth_builder(data):
                         native_vlan=DesignationVLANMapping[
                             non_default_switchport["designation"]
                         ].value,
-                        trunk_groups=["SERVER"],
+                        trunk_groups=trunk_groups,
                     )
 
-            elif 25 <= interface_number <= 48:
-                if non_default_switchport["designation"] == "WORKSTATION":
-                    obj_interface = BaseInterface(
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                        shutdown=True,
-                    )
-                elif non_default_switchport["designation"] == "BM_ESX_VOICE":
-                    obj_interface = NOLACPTrunkInterface(
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                        native_vlan=DesignationVLANMapping["DEFAULT_NATIVE"].value,
-                        trunk_groups=["ISCSI"],
-                    )
-                elif non_default_switchport["designation"] == "BM_MD_NON_BOND":
-                    vlan_designation = f"BM_MD_NON_BOND_{switch_letter}"
-                    obj_interface = AccessInterface(
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                        vlans=DesignationVLANMapping[vlan_designation].value,
-                    )
-                else:
-                    obj_interface = LACPInterface(
-                        channel_group_id=interface_number,
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                    )
+            elif non_default_switchport["designation"] == "WORKSTATION":
+                obj_interface = AccessInterface(
+                    description=non_default_switchport["connected_host"],
+                    name=interface["name"],
+                    vlans=DesignationVLANMapping[non_default_switchport["designation"]].value,
+                )
 
-            result.update(obj_interface.to_keyed_dict())
+            else:
+                obj_interface = PrimaryTrunkLACPFallbackInterface(
+                    channel_group_id=interface_number,
+                    description=non_default_switchport["connected_host"],
+                    name=interface["name"],
+                    native_vlan=DesignationVLANMapping[non_default_switchport["designation"]].value,
+                    trunk_groups=["SERVER"],
+                )
+
+        elif 25 <= interface_number <= 48:
+            builder = HighPortBuilder(
+                description=non_default_switchport["connected_host"],
+                designation=non_default_switchport["designation"],
+                interface=interface,
+                interface_number=interface_number,
+                switch_letter=switch_letter,
+            )
+            obj_interface = builder.build()
+
+        result.update(obj_interface.to_keyed_dict())
     return result
 
 
