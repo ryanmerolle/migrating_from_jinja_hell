@@ -7,9 +7,11 @@
 """
 flatten a complex object to dot bracket notation
 """
+
 from __future__ import absolute_import, division, print_function
 
 
+import contextlib
 # pylint: disable=invalid-name
 __metaclass__ = type
 # pylint: enable=invalid-name
@@ -65,11 +67,8 @@ class BaseInterface:
         details = asdict(self)
 
         """Delete channel_group_id from dictionary."""
-        try:
+        with contextlib.suppress(KeyError):
             del details['channel_group_id']
-        except KeyError:
-            pass
-
         """output the name field as the dictionary name"""
         return {details.pop("name"): details}
 
@@ -161,7 +160,7 @@ class PortBuilder:
     description: str
     """The interface designation"""
     designation: str
-    """The complet interface"""
+    """The complete interface"""
     interface: Dict
     """The interface number"""
     interface_number: int
@@ -171,10 +170,48 @@ class PortBuilder:
     def build(self):
         """Build the port.
 
-        Use the deisngation to lookup a function withing this class or default.
+        Use the designation to lookup a function withing this class or default.
         """
         builder = getattr(self, f"_{self.designation.lower()}", self._default)
         return builder()
+
+
+@dataclass
+class LowPortBuilder(PortBuilder):
+    """Build the low (Ethernet1-24) port."""
+
+    "The trunk groups allowed on the interface"
+    trunk_groups: Optional[List]
+
+    def _bm_esx_voice(self):
+        """Build the high port for the ESX voice interface."""
+        interface = TrunkInterface(
+            description=self.description,
+            name=self.interface["name"],
+            native_vlan=DesignationVLANMapping["BM_ESX"].value,
+            trunk_groups=self.trunk_groups,
+        )
+        return interface
+
+    def _default(self):
+        """Build the high port for the default interface."""
+        interface = LowTrunkLACPFallbackInterface(
+            channel_group_id=self.interface_number,
+            description=self.description,
+            name=self.interface["name"],
+            native_vlan=DesignationVLANMapping[self.designation].value,
+            trunk_groups=self.trunk_groups,
+        )
+        return interface
+
+    def _workstation(self):
+        """Build the low port for the workstation interface."""
+        interface = AccessInterface(
+            description=self.description,
+            name=self.interface["name"],
+            vlans=DesignationVLANMapping[self.designation].value,
+        )
+        return interface
 
 
 @dataclass
@@ -224,7 +261,6 @@ class HighPortBuilder(PortBuilder):
 def _eth_builder(data):
     """The ethernet interface configuration builder function."""
     result = {}
-    non_default_switchport_list = data["rack_non_default_switchports"].keys()
     switch_letter = data["inventory_hostname"][-1].upper()
     for interface in data["interfaces"]:
         if interface["type"] != "25GBASE_SFP28":
@@ -232,50 +268,26 @@ def _eth_builder(data):
 
         interface_number = int(split_interface(interface["name"])[1])
 
-        if interface["name"] in non_default_switchport_list:
+        if interface["name"] in data["rack_non_default_switchports"].keys():
             non_default_switchport = data["rack_non_default_switchports"][interface["name"]]
         else:
             non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
 
         if 1 <= interface_number <= 24:
-            if non_default_switchport["designation"].startswith("BM_"):
-                if non_default_switchport["designation"] == "BM_ESX_VOICE":
-                    obj_interface = TrunkInterface(
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                        native_vlan=DesignationVLANMapping["BM_ESX"].value,
-                        trunk_groups=["SERVER"],
-                    )
-                else:
-                    if "DMZ" in non_default_switchport["designation"]:
-                        trunk_groups = ["DMZ_SERVER"]
-                    else:
-                        trunk_groups = ["SERVER"]
-                    obj_interface = LowTrunkLACPFallbackInterface(
-                        channel_group_id=interface_number,
-                        description=non_default_switchport["connected_host"],
-                        name=interface["name"],
-                        native_vlan=DesignationVLANMapping[
-                            non_default_switchport["designation"]
-                        ].value,
-                        trunk_groups=trunk_groups,
-                    )
-
-            elif non_default_switchport["designation"] == "WORKSTATION":
-                obj_interface = AccessInterface(
-                    description=non_default_switchport["connected_host"],
-                    name=interface["name"],
-                    vlans=DesignationVLANMapping[non_default_switchport["designation"]].value,
-                )
-
+            if "DMZ" in non_default_switchport["designation"]:
+                trunk_groups = ["DMZ_SERVER"]
             else:
-                obj_interface = LowTrunkLACPFallbackInterface(
-                    channel_group_id=interface_number,
-                    description=non_default_switchport["connected_host"],
-                    name=interface["name"],
-                    native_vlan=DesignationVLANMapping[non_default_switchport["designation"]].value,
-                    trunk_groups=["SERVER"],
-                )
+                trunk_groups = ["SERVER"]
+
+            builder = LowPortBuilder(
+                description=non_default_switchport["connected_host"],
+                designation=non_default_switchport["designation"],
+                interface=interface,
+                interface_number=interface_number,
+                switch_letter=switch_letter,
+                trunk_groups=trunk_groups,
+            )
+            obj_interface = builder.build()
 
         elif 25 <= interface_number <= 48:
             builder = HighPortBuilder(
