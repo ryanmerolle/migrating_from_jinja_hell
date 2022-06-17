@@ -9,18 +9,16 @@ flatten a complex object to dot bracket notation
 """
 from __future__ import absolute_import, division, print_function
 
-from dataclasses import asdict, dataclass, field
-from typing import Optional
 
-
+# pylint: disable=invalid-name
 __metaclass__ = type
+# pylint: enable=invalid-name
 
-import random
 
+from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
-from ansible.errors import AnsibleFilterError
 from netutils.interface import split_interface
 
 
@@ -42,7 +40,8 @@ class DesignationVLANMapping(Enum):
     WORKSTATION = 250
 
     # Ethernet25-48 VLANs
-    # No LACP Fallback, so Port-Channels leverage the VLAN & not Ethernet Interfaces EXCEPT for un-bonded interfaces.
+    # No LACP Fallback, so Port-Channels leverage the VLAN & not Ethernet Interfaces
+    # EXCEPT for un-bonded interfaces.
     """The A side market data multicast VLAN."""
     BM_MD_NON_BOND_A = 700
     """The B side market data multicast VLAN."""
@@ -72,7 +71,7 @@ class ChannelGroup:
 
     """The chanel group id determines the Port-Channel membership."""
 
-    id: int = -1
+    id: int = -1  # pylint: disable=invalid-name
     """Set the channel group mode."""
     mode: str = "active"
 
@@ -125,7 +124,10 @@ class NOLACPTrunkInterface(TrunkInterface):
 
 @dataclass
 class PrimaryTrunkLACPFallbackInterface(PrimaryLACPBaseInterface):
-    """The LACP interface for primary interfaces (Et1-24) config with LACP fallback, contains common attributes for these ports."""
+    """The LACP interface for primary interfaces.
+
+    Eth1-24, config with LACP fallback, contains common attributes for these ports.
+    """
 
     """The switchport mode used by the interface"""
     mode: str = "trunk"
@@ -165,6 +167,7 @@ class SecondaryAccessInterface(BaseInterface):
 
 
 def _eth_builder(data):
+    """The ethernet interface configuration builder function."""
     result = {}
     non_default_switchport_list = data["rack_non_default_switchports"].keys()
     switch_letter = data["inventory_hostname"][-1].upper()
@@ -252,6 +255,9 @@ def _eth_builder(data):
     return result
 
 
-class FilterModule(object):
+class FilterModule:
+    """The required class for filter plugin registration."""
+
     def filters(self):
+        """Define the filters to register."""
         return {"eth_builder": _eth_builder}
