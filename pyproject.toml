@@ -15,14 +15,15 @@ no-docstring-rgx = "__.*__"
 # missing module docstring will be picked up by pydocstyle
 # could not do infile b/c older version of pylint didn't have it
 # and ansible-test sanity uses older version in earlier ansible
+# pointless-string-statement allows for attribute docstring in dataclasses
 disable = [
   "duplicate-code",
   "fixme",
   "missing-module-docstring",
+  "pointless-string-statement",
   "too-few-public-methods",
   "unsubscriptable-object",
 ]
 enable = [
   "useless-suppression", # Identify unneeded pylint disable statements
-
 ]
