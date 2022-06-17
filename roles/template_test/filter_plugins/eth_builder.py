@@ -165,10 +165,9 @@ class SecondaryAccessInterface(BaseInterface):
 # if is_switchport:
 #     print("Port is switchport")
 
-
 @dataclass
-class HighPortBuilder:
-    """Build the high port."""
+class PortBuilder:
+    """Build the port."""
 
     """The interface description"""
     description: str
@@ -182,12 +181,18 @@ class HighPortBuilder:
     switch_letter: str
 
     def build(self):
-        """Build the high port.
+        """Build the port.
 
         Use the deisngation to lookup a function withing this class or default.
         """
         builder = getattr(self, f"_{self.designation.lower()}", self._default)
         return builder()
+
+
+@dataclass
+class HighPortBuilder(PortBuilder):
+    """Build the high (Ethernet25-48) port."""
+
 
     def _bm_esx_voice(self):
         """Build the high port for the ESX voice interface."""
