@@ -186,7 +186,7 @@ class HighPortBuilder:
 
         Use the deisngation to lookup a function withing this class or default.
         """
-        builder = getattr(self, f"_{self.designation.lower()}", "_default")
+        builder = getattr(self, f"_{self.designation.lower()}", self._default)
         return builder()
 
     def _bm_esx_voice(self):
