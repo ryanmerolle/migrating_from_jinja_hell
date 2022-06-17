@@ -1,1 +1,8 @@
+ansible-core==2.12.6
+ansible-lint
+black
+isort
 netutils==1.1.0
+pre-commit
+pylint
+yamllint
