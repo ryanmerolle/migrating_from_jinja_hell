@@ -1,0 +1,153 @@
+ethernet_interfaces:
+{# Loop through device's model's ethernet_interfaces #}
+{% for interface in model_ethernet_interfaces %}
+{%     if interface['type'] == '25GBASE_SFP28' %}
+{#  #}
+{# Get interface_number from interface. Example Ethernet1's interface_number would be 1 #}
+{%         set interface_number = (interface['name'] | split_interface)[1] | int %}
+{#  #}
+{# If it the current interface is found in the list rack_non_default_switchports, filter out all the interfaces #}
+{%         if interface['name'] in rack_non_default_switchports.keys() %}
+{%             set switchport = rack_non_default_switchports[interface['name']] %}
+{%         endif %}
+{#  #}
+{# All 25GBASE interfaces use the below structured config #}
+{#  #}
+  {{ interface['name'] }}:
+{# Ethernet1-24 Non-iSCSI/Market Data Logic #}
+{%         if interface_number < 25 %}
+{%             if interface['name'] not in rack_non_default_switchports.keys() or (switchport is defined and switchport['designation'] == 'BM_ESX') %}
+{#  #}
+{# Default Ethernet1-24 config - assumes BM_ESX Non-DMZ #}
+    # Default configuration
+{%                 if switchport is defined and switchport['connected_host'] != 'None' %}
+    description: {{ switchport['connected_host'] }}
+{%                 else %}
+    description: ''
+{%                 endif %}
+    type: switched
+    channel_group:
+      id: {{ interface_number }}
+      mode: active
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+{#  #}
+{# Non-default Ethernet1-24 switchport config #}
+{%             elif interface['name'] in rack_non_default_switchports.keys() %}
+{%                 if switchport['connected_host'] != 'None' %}
+    description: {{ switchport['connected_host'] }}
+{%                 else %}
+    description: ''
+{%                 endif %}
+{%                 if switchport['designation'] in ['BM_PROD', 'BM_NON_PROD', 'BM_ESX_DMZ'] %}
+    type: switched
+    channel_group:
+      id: {{ interface_number }}
+      mode: active
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+{#  #}
+{# Set native VLAN based on switchport['designation'] for LACP fallback #}
+{%                     if switchport['designation'] == 'BM_PROD' %}
+    native_vlan: 200
+{%                     elif switchport['designation'] == 'BM_NON_PROD' %}
+    native_vlan: 300
+{%                     elif switchport['designation'] == 'BM_ESX_DMZ' %}
+    native_vlan: 600
+{%                     endif %}
+{#  #}
+{# Set trunk group restrictions based on if the server is a DMZ server or not for LACP fallback #}
+    trunk_groups:
+{%                     if 'DMZ' in switchport['designation'] %}
+      - DMZ_SERVER
+{%                     elif 'DMZ' not in switchport['designation'] %}
+      - SERVER
+{%                     endif %}
+{#
+
+#}
+{%                 elif switchport['designation'] == 'BM_ESX_VOICE' %}
+{# ESX VOICE - NO LACP #}
+    type: switched
+    mode: trunk
+    native_vlan: 100
+    shutdown: false
+    spanning_tree_portfast: edge
+    trunk_groups:
+      - SERVER
+{#  #}
+{%                 elif switchport['designation'] == 'WORKSTATION' %}
+{# WORKSTATION - access port, NO LACP #}
+    type: switched
+    mode: access
+    shutdown: false
+    spanning_tree_portfast: edge
+    vlans: 250
+{%                 endif %}
+{%             endif %}
+{%         endif %}
+{#
+
+
+#}
+{# ISCSI & Market Data switchports (Ethernet25-48) use different logic #}
+{%         if interface_number >= 25 %}
+{%             if interface['name'] not in rack_non_default_switchports.keys() or switchport['designation'] not in ['BM_ESX_VOICE', 'BM_MD_NON_BOND', 'WORKSTATION'] %}
+{# Default - Ethernet25-48 config - ISCSI #}
+    # Default configuration
+{%                 if switchport is defined and switchport['connected_host'] != 'None' %}
+    description: {{ switchport['connected_host'] }}
+{%                 else %}
+    description: ''
+{%                 endif %}
+{# ISCSI ports don't allow for LACP fallback #}
+    channel_group:
+      id: {{ interface_number }}
+      mode: active
+    shutdown: false
+{%             elif interface['name'] in rack_non_default_switchports.keys() %}
+{# #}
+{# Non-default Ethernet25-48 switchport config #}
+{%                 if switchport['connected_host'] != 'None' %}
+    description: {{ switchport['connected_host'] }}
+{%                 else %}
+    description: ''
+{%                 endif %}
+{#
+
+#}
+{%                 if switchport['designation'] == 'BM_MD_NON_BOND' %}
+{# Market Data - NO LACP #}
+    mode: access
+    shutdown: false
+    spanning_tree_portfast: edge
+    type: switched
+{# Market Data Specific Interfaces - different vlan depending on the connected switch #}
+{%                     if inventory_hostname.endswith('-a') %}
+    vlans: 700
+{%                     elif inventory_hostname.endswith('-b') %}
+    vlans: 701
+{%                     endif %}
+{#  #}
+{%                 elif switchport['designation'] == 'BM_ESX_VOICE' %}
+{# ESX VOICE - NO LACP #}
+    type: switched
+    mode: trunk
+    shutdown: false
+    spanning_tree_portfast: edge
+    native_vlan: 999
+    trunk_groups:
+      - ISCSI
+{%                 elif switchport['designation'] == 'WORKSTATION' %}
+{# WORKSTATION - Not used, but reserved #}
+    shutdown: true
+{%                 endif %}
+{%             endif %}
+{%         endif %}
+{%     endif %}
+{% endfor %}

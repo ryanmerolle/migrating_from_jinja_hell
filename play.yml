@@ -1,0 +1,9 @@
+---
+- name: "Build Device Facts For Config Generation"
+  hosts: "eos"
+
+  tasks:
+
+    - name: "Build Template"
+      ansible.builtin.import_role:
+        name: template_test

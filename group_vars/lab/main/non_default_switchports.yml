@@ -1,0 +1,51 @@
+---
+non_default_switchports:
+  - rack: "101"
+    switchports:
+      Ethernet1:
+        designation:
+        connected_host:
+      Ethernet2:
+        designation:
+        connected_host:
+      Ethernet3:
+        designation:
+        connected_host:
+      Ethernet4:
+        designation:
+        connected_host:
+      Ethernet5:
+        designation:
+        connected_host:
+      Ethernet6:
+        designation:
+        connected_host:
+      Ethernet25:
+        designation:
+        connected_host:
+      Ethernet26:
+        designation:
+        connected_host:
+      Ethernet27:
+        designation:
+        connected_host:
+      Ethernet28:
+        designation:
+        connected_host:
+      Ethernet29:
+        designation:
+        connected_host:
+      Ethernet30:
+        designation:
+        connected_host:
+      Ethernet31:
+        designation:
+        connected_host:
+  - rack: "102"
+    switchports:
+      Ethernet12:
+        designation:
+        connected_host:
+      Ethernet20:
+        designation:
+        connected_host:

@@ -1,0 +1,2 @@
+---
+rack_non_default_switchports: "{{ non_default_switchports | selectattr('rack', 'equalto', rack) | first }}"

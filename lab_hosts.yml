@@ -1,0 +1,21 @@
+---
+all:
+  children:
+    lab:
+      children:
+        rack_101:
+          hosts:
+            sw-lab-01-a: {}
+            sw-lab-01-b: {}
+          vars:
+            rack: "101"
+      vars:
+        site_group: "lab"
+    eos:
+      children:
+        dcs_7050sx3_48yc8:
+          hosts:
+            sw-lab-01-a: {}
+            sw-lab-01-b: {}
+          vars:
+            model: "DCS-7050SX3-48YC8"
