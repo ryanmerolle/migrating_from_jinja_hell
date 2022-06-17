@@ -11,6 +11,9 @@
       rack_non_default_switchports: "{{ rack_non_default_switchports['switchports'] }}"
       inventory_hostname: "{{ inventory_hostname }}"
 
+- debug:
+    var: plugin_filter_eth
+
 - name: "Test Template Ethernet & Port-Channel Interfaces"
   ansible.builtin.template:
     src: "./templates/main.j2"

@@ -59,13 +59,6 @@ class BaseInterface:
     """The interface shutdown status"""
     shutdown: bool = field(default=False)
 
-    #def __post__init__(self):
-    #    """Post initialize the interface.
-    #
-    #    Extract the name from the number
-    #    """
-    #    #self.number = int(self.name.replace("Ethernet", ""))
-
     def to_keyed_dict(self):
         """Convert the interface to a dict keyed with interface name."""
         details = asdict(self)
@@ -88,9 +81,11 @@ class LACPInterface(BaseInterface):
     """The chanel group id determines the Port-Channel membership."""
     channel_group_id: int = -1
     """Set the channel group mode."""
-    channel_group_mode: str = "active"
+    channel_group: ChannelGroup = ChannelGroup()
 
-
+    def __post_init__(self):
+        """Post initalize the interface."""
+        self.channel_group = ChannelGroup(id=self.channel_group_id)
 
 
 @dataclass
@@ -156,6 +151,13 @@ class SecondaryAccessInterface(BaseInterface):
 
     """The interface shutdown status"""
     shutdown: bool = True
+
+
+# Need to refactor for readability
+# Example approach
+# is_switchport = data['value']['nested']['deep']['type']['port'] == "switchport"
+# if is_switchport:
+#     print("Port is switchport")
 
 def _eth_builder(data):
     result = {}
