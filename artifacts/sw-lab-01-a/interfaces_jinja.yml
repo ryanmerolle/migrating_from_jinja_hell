@@ -465,4 +465,3 @@ ethernet_interfaces:
       id: 48
       mode: active
     shutdown: false
-

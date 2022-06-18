@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Red Hat
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -8,20 +7,18 @@
 flatten a complex object to dot bracket notation
 """
 
-from __future__ import absolute_import, division, print_function
-
 
 import contextlib
-# pylint: disable=invalid-name
-__metaclass__ = type
-# pylint: enable=invalid-name
-
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
 from netutils.interface import split_interface
+
+
+# pylint: disable=invalid-name
+# pylint: enable=invalid-name
 
 
 class DesignationVLANMapping(Enum):
@@ -68,7 +65,7 @@ class BaseInterface:
 
         """Delete channel_group_id from dictionary."""
         with contextlib.suppress(KeyError):
-            del details['channel_group_id']
+            del details["channel_group_id"]
         """output the name field as the dictionary name"""
         return {details.pop("name"): details}
 
@@ -218,7 +215,6 @@ class LowPortBuilder(PortBuilder):
 class HighPortBuilder(PortBuilder):
     """Build the high (Ethernet25-48) port."""
 
-
     def _bm_esx_voice(self):
         """Build the high port for the ESX voice interface."""
         interface = TrunkInterface(
@@ -249,7 +245,7 @@ class HighPortBuilder(PortBuilder):
         return interface
 
     def _workstation(self):
-        """Build the high port for the workstation interface.  Sets a description & shuts it down."""
+        """Build the high port for the workstation interface. Sets a description & shuts it down."""
         interface = BaseInterface(
             description=self.description,
             name=self.interface["name"],
@@ -273,7 +269,9 @@ def _eth_builder(data):
         else:
             non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
 
-        if 1 <= interface_number <= 24: # "low ports" refer to Et1-24 which are the primary interfaces to the connected compute resources.
+        if (
+            1 <= interface_number <= 24
+        ):  # "low ports" refer to Et1-24 which are the primary interfaces to servers.
             if "DMZ" in non_default_switchport["designation"]:
                 trunk_groups = ["DMZ_SERVER"]
             else:
@@ -289,7 +287,9 @@ def _eth_builder(data):
             )
             obj_interface = builder.build()
 
-        elif 25 <= interface_number <= 48: # "high ports" refer to Et25-48 which are the dedicated iSCSI or multicast interfaces to the connected compute resources.
+        elif (
+            25 <= interface_number <= 48
+        ):  # "high ports" refer to Et25-48 which are the dedicated iSCSI or multicast interfaces to servers.
             builder = HighPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],

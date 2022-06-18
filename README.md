@@ -12,7 +12,8 @@ For the plugin to work, use the [requirements.txt](./requirements.txt)
 
 ### Roles
 
-Single role calling a main.j2 template which includes a port_channel and ethernet template.
+Single role calling a main.j2 template which includes a port_channel
+& ethernet template.
 
 ### Group Vars
 

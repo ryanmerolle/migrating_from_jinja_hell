@@ -3,5 +3,4 @@
 {% set model_ethernet_interfaces = (lookup('ansible.builtin.file', './vars/model_details/' ~ model ~ '.yml') | from_yaml)['ethernet_interfaces'] %}
 {#  #}
 {% include 'ethernet_interfaces.j2' %}
-
 {#% include 'port_channel_interfaces.j2' %#}

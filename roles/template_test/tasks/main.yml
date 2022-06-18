@@ -1,6 +1,6 @@
 ---
 - name: Transform the data 2
-  set_fact:
+  ansible.builtin.set_fact:
     plugin_filter_eth: "{{ data | eth_builder }}"
   vars:
     model: DCS-7050SX3-48YC8
@@ -11,7 +11,8 @@
       rack_non_default_switchports: "{{ rack_non_default_switchports['switchports'] }}"
       inventory_hostname: "{{ inventory_hostname }}"
 
-- debug:
+- name: Debug plugin_filter output
+  ansible.builtin.debug:
     var: plugin_filter_eth
 
 - name: "Test Template Ethernet & Port-Channel Interfaces"
@@ -23,7 +24,7 @@
   changed_when: false
 
 - name: Load Template Ethernet Interfaces
-  include_vars:
+  ansible.builtin.include_vars:
     file: "./artifacts/{{ inventory_hostname }}/interfaces_jinja.yml"
 
 - name: Diff Output
