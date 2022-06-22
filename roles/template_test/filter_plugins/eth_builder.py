@@ -291,9 +291,7 @@ def _eth_builder(data):
 
         # "high ports" refer to Et25-48 which are the dedicated iSCSI
         # or multicast interfaces to servers.
-        elif (
-            25 <= interface_number <= 48
-        ):
+        elif 25 <= interface_number <= 48:
             builder = HighPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],
