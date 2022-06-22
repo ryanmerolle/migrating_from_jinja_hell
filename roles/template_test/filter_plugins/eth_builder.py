@@ -265,7 +265,9 @@ def _eth_builder(data):
         interface_number = int(split_interface(interface["name"])[1])
 
         if interface["name"] in data["rack_non_default_switchports"].keys():
-            non_default_switchport = data["rack_non_default_switchports"][interface["name"]]
+            non_default_switchport = data["rack_non_default_switchports"][
+                interface["name"]
+            ]
         else:
             non_default_switchport = {"designation": "BM_ESX", "connected_host": ""}
 
@@ -287,9 +289,11 @@ def _eth_builder(data):
             )
             obj_interface = builder.build()
 
+        # "high ports" refer to Et25-48 which are the dedicated iSCSI
+        # or multicast interfaces to servers.
         elif (
             25 <= interface_number <= 48
-        ):  # "high ports" refer to Et25-48 which are the dedicated iSCSI or multicast interfaces to servers.
+        ):
             builder = HighPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],
