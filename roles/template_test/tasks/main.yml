@@ -1,20 +1,7 @@
 ---
-- name: Transform the data DataClasses Attempt 1
+- name: Transform the data DataClasses
   ansible.builtin.set_fact:
     plugin_filter_eth: "{{ data | eth_builder }}"
-  vars:
-    model: DCS-7050SX3-48YC8
-    vars_file: "./vars/model_details/{{ model }}.yml"
-    model_ethernet_interfaces: "{{ (lookup('ansible.builtin.file', vars_file) | from_yaml)['ethernet_interfaces']  }}"
-    data:
-      interfaces: "{{ model_ethernet_interfaces }}"
-      rack_non_default_switchports: "{{ rack_non_default_switchports['switchports'] }}"
-      inventory_hostname: "{{ inventory_hostname }}"
-
-
-- name: Transform the data DataClasses Attempt 2
-  ansible.builtin.set_fact:
-    plugin_filter_eth2: "{{ data | eth_builder_2 }}"
   vars:
     model: DCS-7050SX3-48YC8
     vars_file: "./vars/model_details/{{ model }}.yml"
@@ -47,4 +34,4 @@
     - name: Diff Output
       ansible.utils.fact_diff:
         before: "{{ ethernet_interfaces | ansible.utils.to_paths }}"
-        after: "{{ plugin_filter_eth2 | ansible.utils.to_paths }}"
+        after: "{{ plugin_filter_eth | ansible.utils.to_paths }}"
