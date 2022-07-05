@@ -1,4 +1,4 @@
-ansible-core==2.12.6
+ansible-core==2.12.7
 ansible-lint
 black
 isort
