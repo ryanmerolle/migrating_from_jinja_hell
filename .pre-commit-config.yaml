@@ -49,11 +49,11 @@ repos:
     rev: v0.31.1
     hooks:
       - id: markdownlint
-  - repo: local
-    hooks:
-      - id: wily
-        name: wily
-        entry: wily diff
-        verbose: true
-        language: python
-        additional_dependencies: [wily]
+  #- repo: local
+  #  hooks:
+  #    - id: wily
+  #      name: wily
+  #      entry: wily diff
+  #      verbose: true
+  #      language: python
+  #      additional_dependencies: [wily]
