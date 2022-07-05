@@ -27,7 +27,7 @@ class DesignationVLANMapping(Enum):
     # Ethernet1-24 VLANs
     """The DEFAULT native VLAN."""
     DEFAULT_NATIVE = 999
-    """The ESX VLAN also the default native VLAN for low interfaces."""
+    """The ESX VLAN also the default native VLAN for primary interfaces."""
     BM_ESX = 100
     """The production VLAN."""
     BM_PROD = 200
@@ -81,7 +81,7 @@ class ChannelGroup:
 
 
 @dataclass
-class LACPInterface(BaseInterface):
+class LACPBaseInterface(BaseInterface):
     """The LACP interface config, contains common attributes for LACP."""
 
     """The chanel group id determines the Port-Channel membership."""
@@ -92,16 +92,6 @@ class LACPInterface(BaseInterface):
     def __post_init__(self):
         """Post initalize the interface."""
         self.channel_group = ChannelGroup(id=self.channel_group_id)
-
-
-@dataclass
-class LowLACPBaseInterface(LACPInterface):
-    """Sets the common config for the low interface (Et1-24) for LACP"""
-
-    """The interface spanning tree portfast status"""
-    spanning_tree_portfast: Optional[str] = field(default="edge")
-    """The interface type (switched or routed)"""
-    type: str = field(default="switched")
 
 
 @dataclass
@@ -121,12 +111,13 @@ class TrunkInterface(BaseInterface):
 
 
 @dataclass
-class LowTrunkLACPFallbackInterface(LowLACPBaseInterface):
-    """The LACP interface for low interfaces.
+class TrunkLACPFallbackInterface(LACPBaseInterface):
+    """The LACP interface for interfaces with LACP fallback configured."""
 
-    Eth1-24, config with LACP fallback, contains common attributes for these ports.
-    """
-
+    """The interface spanning tree portfast status"""
+    spanning_tree_portfast: Optional[str] = field(default="edge")
+    """The interface type (switched or routed)"""
+    type: str = field(default="switched")
     """The switchport mode used by the interface"""
     mode: str = "trunk"
     """The native / untagged vlan on the interface"""
@@ -137,7 +128,7 @@ class LowTrunkLACPFallbackInterface(LowLACPBaseInterface):
 
 @dataclass
 class AccessInterface(BaseInterface):
-    """The base access low interface."""
+    """The base access interface."""
 
     """The access vlan"""
     vlans: int = -1
@@ -174,7 +165,7 @@ class PortBuilder:
 
 
 @dataclass
-class LowPortBuilder(PortBuilder):
+class PrimaryPortBuilder(PortBuilder):
     """Build the low (Ethernet1-24) port."""
 
     "The trunk groups allowed on the interface"
@@ -192,7 +183,7 @@ class LowPortBuilder(PortBuilder):
 
     def _default(self):
         """Build the high port for the default interface."""
-        interface = LowTrunkLACPFallbackInterface(
+        interface = TrunkLACPFallbackInterface(
             channel_group_id=self.interface_number,
             description=self.description,
             name=self.interface["name"],
@@ -212,7 +203,7 @@ class LowPortBuilder(PortBuilder):
 
 
 @dataclass
-class HighPortBuilder(PortBuilder):
+class SecondaryPortBuilder(PortBuilder):
     """Build the high (Ethernet25-48) port."""
 
     def _bm_esx_voice(self):
@@ -237,7 +228,7 @@ class HighPortBuilder(PortBuilder):
 
     def _default(self):
         """Build the high port for the default interface."""
-        interface = LACPInterface(
+        interface = LACPBaseInterface(
             channel_group_id=self.interface_number,
             description=self.description,
             name=self.interface["name"],
@@ -279,7 +270,7 @@ def _eth_builder(data):
             else:
                 trunk_groups = ["SERVER"]
 
-            builder = LowPortBuilder(
+            builder = PrimaryPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],
                 interface=interface,
@@ -292,7 +283,7 @@ def _eth_builder(data):
         # "high ports" refer to Et25-48 which are the dedicated iSCSI
         # or multicast interfaces to servers.
         elif 25 <= interface_number <= 48:
-            builder = HighPortBuilder(
+            builder = SecondaryPortBuilder(
                 description=non_default_switchport["connected_host"],
                 designation=non_default_switchport["designation"],
                 interface=interface,
