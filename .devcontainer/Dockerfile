@@ -10,7 +10,7 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
  COPY requirements.txt /tmp/pip-tmp/
- RUN python3 -m pip install --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+ RUN /usr/local/bin/python3 -m pip install --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
     && rm -rf /tmp/pip-tmp
 
 # [Optional] If your ansible galaxy requirements rarely change, uncomment this section to add them to the image.
